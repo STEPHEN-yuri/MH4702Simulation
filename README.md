@@ -1,6 +1,6 @@
 # MH4702Simulation
 
-**Github comments:**\
+**Github comments:**
 - Get synchronized with the current repository: 
   - git pull
 - After modification: 
