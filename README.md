@@ -3,7 +3,7 @@ Simulation Project for MH4702\
 
 
 **Github comments:**\
-      **First**: git pull\
+     **Get synchronized with the current repository**: git pull\
      **After modification**: git add . \
                               git stage . \
                               git commit -m "message"\
