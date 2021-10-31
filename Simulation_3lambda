@@ -1,0 +1,273 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+##### We will now consider the case when K=3
+##### The queueing system is G/M/s
+##### Arrival rate = lambda1 during [0,t0]
+##### Arrival rate = lambda2 during [t0,t1]
+##### Arrival rate = lambda3 during [t1,T]
+
+
+# arrival rate
+lambda1 = 2
+lambda2 = 4
+lambda3 = 8
+arrival_rate = np.array([lambda1,lambda2,lambda3])
+
+# service rate 
+mu = 3
+
+# total time, that is the office hour is from 8:00 am to 6:00 pm, and will not accept new customers half hour before the end
+T = 10
+
+# time for the change in influx
+t0 = 5
+t1 = 7
+
+# let's consider the case when a new gate is open at time s1, i.e. there are two counter serving
+### after which another new counter is opened at time s2, i.e., there are three counters serving
+# the cost of operating one counter is c1 and two counters is c2 and three counters is c3, the upper bound for the daily cost is C
+c1 = 5
+c2 = 10
+c3 = 15
+C = 13
+s1 = 6
+s2 = 8
+
+
+# To illustrate the idea and serve as a comparison, we start with only one counter throughout [0,T], i.e., s>T
+# For a single iteration of simulation
+arrival_time=np.zeros([50,1])
+# assign value of arrival time
+n=0
+while arrival_time[n]<10:
+    if n==0:
+        arrival_time[0]=np.random.exponential(1/lambda1)
+        
+    if arrival_time[n]<t0:
+        arrival_time[n+1]+=arrival_time[n]+np.random.exponential(1/lambda1)
+    elif arrival_time[n]<t1:
+        arrival_time[n+1]+=arrival_time[n]+np.random.exponential(1/lambda2)
+    else:
+        arrival_time[n+1]+=arrival_time[n]+np.random.exponential(1/lambda3)
+    n+=1
+
+arrival_time=arrival_time[arrival_time>0][0:n,None]
+plt.figure()
+plt.plot(arrival_time,range(n))
+plt.title("Arrival time vs no. of customers")
+plt.show()
+
+# service length
+service_length=np.random.exponential(1/mu,[n,1])
+
+plt.figure()
+plt.plot(range(n),service_length)
+plt.title("service length for each customer")
+plt.show()
+
+# service starting time & service ending time
+# let's start with only one gate
+service_start_time=np.zeros([n,1])
+service_end_time=np.zeros([n,1])
+for k in range(n):
+    if k==0:
+        service_start_time[k]=arrival_time[k]
+    else:
+        service_start_time[k]=max(arrival_time[k],service_end_time[k-1])
+    service_end_time[k]=service_start_time[k]+service_length[k]
+    
+plt.figure()
+plt.plot(service_start_time,range(n))
+plt.plot(service_end_time,range(n))
+plt.plot(arrival_time,range(n))
+plt.title("Simulation result when s>T")
+plt.legend(["service starting time","service ending time","arrival time"])
+plt.show()
+###
+# new service start and ending time with new gate introduced
+service_start_s1_time=np.zeros([n,1])
+service_end_s1_time=np.zeros([n,1])
+for k in range(n):
+    if k==0:
+        service_start_s1_time[k]=arrival_time[k]
+    else:
+        service_start_s1_time[k]=max(arrival_time[k],service_end_s1_time[k-1])
+    service_end_s1_time[k]=service_start_s1_time[k]+service_length[k]
+    if  service_end_s1_time[k]>=s1:
+        print("Found k")
+        break
+        
+service_start_s1_time[k+1]=max(s1,arrival_time[k+1])
+service_end_s1_time[k+1]=service_start_s1_time[k+1]+service_length[k+1]
+for j in range(k+2,n):
+    service_start_s1_time[j]=max(arrival_time[j],min(service_end_s1_time[j-1],service_end_s1_time[j-2]))
+    service_end_s1_time[j]=service_start_s1_time[j]+service_length[j]
+    
+plt.figure()
+plt.plot(service_start_s1_time,range(n))
+plt.plot(service_end_s1_time,range(n))
+plt.plot(arrival_time,range(n))
+plt.title("Simulation result when s1=6")
+plt.legend(["service starting time","service ending time","arrival time"])
+plt.show()
+# new service start and ending time with another new gate introduced
+service_start_s2_time=np.zeros([n,1])
+service_end_s2_time=np.zeros([n,1])
+for k in range(n):
+    if k==0:
+        service_start_s2_time[k]=arrival_time[k]
+    else:
+        service_start_s2_time[k]=max(arrival_time[k],service_end_s2_time[k-1])
+    service_end_s2_time[k]=service_start_s2_time[k]+service_length[k]
+    if  service_end_s2_time[k]>=s1:
+        print("Found k")
+        break
+        
+service_start_s2_time[k+1]=max(s1,arrival_time[k+1])
+service_end_s2_time[k+1]=service_start_s2_time[k+1]+service_length[k+1]
+for j in range(k+2,n):
+    service_start_s2_time[j]=max(arrival_time[j],min(service_end_s2_time[j-1],service_end_s2_time[j-2]))
+    service_end_s2_time[j]=service_start_s2_time[j]+service_length[j]
+    if  service_end_s2_time[j]>=s2:
+        print("Found j")
+        break
+
+service_start_s2_time[j+1]=max(s2,arrival_time[j+1])
+service_end_s2_time[j+1]=service_start_s2_time[j+1]+service_length[j+1]
+for h in range(j+2,n):
+    service_start_s2_time[h]=max(arrival_time[h],min(service_end_s2_time[h-1],service_end_s2_time[h-2]))
+    service_end_s2_time[h]=service_start_s2_time[h]+service_length[h]
+    
+plt.figure()
+plt.plot(service_start_s2_time,range(n))
+plt.plot(service_end_s2_time,range(n))
+plt.plot(arrival_time,range(n))
+plt.title("Simulation result when s1=6, s2=8")
+plt.legend(["service starting time","service ending time","arrival time"])
+plt.show()
+
+#### waiting time given the gate is opened at time s
+waiting_s1_time=service_start_s1_time-arrival_time
+total_service_s1_time=waiting_s1_time+service_length
+Wq_s1=np.sum(waiting_s1_time)/len(waiting_s1_time)
+print(Wq_s1)
+
+# waiting time given the second gate is opened at time s2
+waiting_s2_time=service_start_s2_time-arrival_time
+total_service_s2_time=waiting_s2_time+service_length
+Wq_s2=np.sum(waiting_s2_time)/len(waiting_s2_time)
+print(Wq_s2)
+
+waiting_time=service_start_time-arrival_time
+Wq=np.sum(waiting_time)/len(waiting_time)
+print(Wq)
+
+
+def GenerateTime(arrival_rate=np.array([2,4,8]),mu=3,T=10,t0=5,t1=7):
+    '''
+    generate the arrival time and the service length of each customer
+    '''
+    arrival_time=np.zeros([100,1])
+    # assign value of arrival time
+    n=0
+    while arrival_time[n]<T:
+        if n==0:
+            arrival_time[0]=np.random.exponential(1/arrival_rate[1])
+
+        if arrival_time[n]<t0:
+            arrival_time[n+1]+=arrival_time[n]+np.random.exponential(1/arrival_rate[0])
+        elif arrival_time[n]<t1:
+            arrival_time[n+1]+=arrival_time[n]+np.random.exponential(1/arrival_rate[1])
+        else:
+            arrival_time[n+1]+=arrival_time[n]+np.random.exponential(1/arrival_rate[2])
+        n+=1
+
+    arrival_time=arrival_time[arrival_time>0][0:n,None]
+    # service length
+    service_length=np.random.exponential(1/mu,[n,1])
+    return (arrival_time,service_length)
+
+def WaitingTimeS(arrival_time,service_length,s1,s2):
+    '''
+     compute the expected waiting time in queue when the new gate is introduced at s
+    '''
+    n=np.shape(arrival_time)[0]
+    service_start_s2_time=np.zeros([n,1])
+    service_end_s2_time=np.zeros([n,1])
+    for k in range(n):
+        if k==0:
+            service_start_s2_time[k]=arrival_time[k]
+        else:
+            service_start_s2_time[k]=max(arrival_time[k],service_end_s2_time[k-1])
+        service_end_s2_time[k]=service_start_s2_time[k]+service_length[k]
+        if  service_end_s2_time[k]>=s1:
+            break
+    if k+1<n:
+        service_start_s2_time[k+1]=max(s1,arrival_time[k+1])
+        service_end_s2_time[k+1]=service_start_s2_time[k+1]+service_length[k+1]
+        for j in range(k+2,n):
+            service_start_s2_time[j]=max(arrival_time[j],min(service_end_s2_time[j-1],service_end_s2_time[j-2]))
+            service_end_s2_time[j]=service_start_s2_time[j]+service_length[j]
+            if  service_end_s2_time[j]>=s2:
+                break
+        if j+1<n:
+            service_start_s2_time[j+1]=max(s2,arrival_time[j+1])
+            service_end_s2_time[j+1]=service_start_s2_time[j+1]+service_length[j+1]
+            for h in range(j+2,n):
+                service_start_s2_time[h]=max(arrival_time[h],min(service_end_s2_time[h-1],service_end_s2_time[h-2]))
+                service_end_s2_time[h]=service_start_s2_time[h]+service_length[h]
+
+    waiting_s2_time=service_start_s2_time-arrival_time   
+    Wq_s2=np.sum(waiting_s2_time)/len(waiting_s2_time)
+    
+    return Wq_s2
+
+
+def WaitingTime(arrival_time,service_length):
+    '''
+    compute the expected waiting time in queue when there is only one gate
+    '''
+    n=np.shape(arrival_time)[0]
+    service_start_time=np.zeros([n,1])
+    service_end_time=np.zeros([n,1])
+    for k in range(n):
+        if k==0:
+            service_start_time[k]=arrival_time[k]
+        else:
+            service_start_time[k]=max(arrival_time[k],service_end_time[k-1])
+        service_end_time[k]=service_start_time[k]+service_length[k]
+        
+    waiting_time=service_start_time-arrival_time   
+    Wq=np.sum(waiting_time)/len(waiting_time)
+    
+    return Wq
+
+def WqAverage(arrival_rate=np.array([2,4,8]),mu=3,T=10,t0=5,t1=7,s1=6,s2=8,options=False):
+    '''
+    calculate the average weighting time over M iterations
+    '''
+    M=1000 # number of iterations
+    Wq_s2_averaged=0
+    for i in range(M):
+        (arrival_time,service_length)=GenerateTime(arrival_rate=np.array([2,4,8]),mu=3,T=10,t0=5,t1=7)
+        Wq_s2_averaged+=WaitingTimeS(arrival_time,service_length,s1,s2)
+        if options:
+            if i%1000==0:
+                print("Iteration",i)
+    return Wq_s2_averaged/M
+
+# calculate the average weighting time over M iterations
+M=10000 # number of iterations
+Wq_s2_averaged=0
+Wq_averaged=0
+for i in range(M):
+    (arrival_time,service_length)=GenerateTime(arrival_rate=np.array([2,4,8]),mu=3,T=10,t0=5,t1=7)
+    Wq_s2_averaged+=WaitingTimeS(arrival_time,service_length,s1,s2)
+    Wq_averaged+=WaitingTime(arrival_time,service_length)
+    if i%1000==0:
+        print("Iteration",i)
+Wq_s2_averaged=Wq_s2_averaged/M
+Wq_averaged=Wq_averaged/M
+print("Wq_s2:",Wq_s2_averaged,"Wq",Wq_averaged)
