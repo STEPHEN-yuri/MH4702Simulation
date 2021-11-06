@@ -10,6 +10,10 @@ Aviation is a vital component of Singapore’s business. We hope to improve pass
 ## Paper
 - See our paper in [MH4702_Simulation_Project.pdf][e03].
 
+## Version
+- Python 3.8
+- Jupyter notebook
+
 ## GitHub Commands
 - Get synchronized with the current repository: 
   - git pull
