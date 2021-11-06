@@ -13,6 +13,9 @@ Aviation is a vital component of Singapore’s business. We hope to improve pass
 ## Version
 - Python 3.8
 - Jupyter notebook
+- Numpy
+- Pandas
+- Matplotlib
 
 ## GitHub Commands
 - Get synchronized with the current repository: 
