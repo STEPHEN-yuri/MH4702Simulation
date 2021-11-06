@@ -8,7 +8,7 @@ Aviation is a vital component of Singapore’s business. We hope to improve pass
 
 
 ## Paper
-
+- See our paper in [MH4702_Simulation_Project.pdf][e03].
 
 ## GitHub Commands
 - Get synchronized with the current repository: 
@@ -22,3 +22,4 @@ Aviation is a vital component of Singapore’s business. We hope to improve pass
 
 [e01]:MH4702_Simulation.ipynb
 [e02]:MH4702_Sensitivity_Analysis.ipynb
+[e03]:MH4702_Simulation_Project.pdf
